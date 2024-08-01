@@ -11,4 +11,26 @@ let books = {
       10: {"author": "Samuel Beckett","title": "Molloy, Malone Dies, The Unnamable, the trilogy", "reviews": {} }
 }
 
-module.exports=books;
+const getBookByISBN = (isbn) => {
+    const book = books[isbn]
+    if (!book) return { message: "Please, provide a valid isbn" }
+
+    return book
+}
+
+const filterBookByProperty = (property, value) => {
+    const keys = Object.keys(books)
+
+    let key = keys.find(x => books[x][property] == value)
+
+    if (!books[key]) return { message: `Please, provide a valid ${property}` }
+
+    return {
+        "book": books[key],
+        "key": key
+    }
+}
+
+module.exports.books = books;
+module.exports.getBookByISBN = getBookByISBN;
+module.exports.filterBookByProperty = filterBookByProperty;
