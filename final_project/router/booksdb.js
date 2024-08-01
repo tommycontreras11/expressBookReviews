@@ -12,23 +12,31 @@ let books = {
 }
 
 const getBookByISBN = (isbn) => {
-    const book = books[isbn]
-    if (!book) return { message: "Please, provide a valid isbn" }
-
-    return book
+    return new Promise((resolve, rejected) => {
+        setTimeout(() => {
+            const book = books[isbn]
+            if (!book) rejected({ message: "Please, provide a valid isbn" })
+        
+            resolve(book)
+        }, 1000)
+    })
 }
 
 const filterBookByProperty = (property, value) => {
-    const keys = Object.keys(books)
+    return new Promise((resolve, rejected) => {
+        setTimeout(() => {
+            const keys = Object.keys(books)
 
-    let key = keys.find(x => books[x][property] == value)
-
-    if (!books[key]) return { message: `Please, provide a valid ${property}` }
-
-    return {
-        "book": books[key],
-        "key": key
-    }
+            let key = keys.find(x => books[x][property] == value)
+        
+            if (!books[key]) rejected({ message: `Please, provide a valid property/value` })
+        
+            resolve({
+                "book": books[key],
+                "key": key
+            })
+        }, 1000)
+    })
 }
 
 module.exports.books = books;
