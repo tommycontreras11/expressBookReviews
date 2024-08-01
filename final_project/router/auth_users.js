@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-let books = require("./booksdb.js");
+const { books } = require('./booksdb.js');
 const regd_users = express.Router();
 
 let users = [];
@@ -22,16 +22,16 @@ regd_users.post("/login", (req, res) => {
     if (!username || !password) return res.status(400).json({ message: "Please, fields are required" })
 
     if (authenticatedUser(username, password)) {
-        let accessToken = jwt.sign({ user: username }, "access", {
-            expiresIn: 60 * 60
-        })
+        let accessToken = jwt.sign({
+            data: username
+        }, 'access', { expiresIn: 60 * 60 });
 
         req.session.authorization = {
             username,
             accessToken
         }
 
-        return res.status(200).json({ message: `Welcome ${usernam}` });
+        return res.status(200).json({ message: `Welcome ${username}` });
     }
 
     return res.status(400).json({ message: "Username y/o password incorrect" });
@@ -40,7 +40,17 @@ regd_users.post("/login", (req, res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
     //Write your code here
-    return res.status(300).json({ message: "Yet to be implemented" });
+    const { isbn } = req.params
+    const { review } = req.body
+
+    if (!isbn) return res.status(400).json({ message: "Please, provide a valid isbn" })
+    if (!review) return res.status(400).json({ message: "Please, provide a valid review" })
+
+    const userLogged = req.session.authorization['username']
+
+    books[isbn].reviews[userLogged] = review
+     
+    return res.status(200).json({ message: "Review added successfully" });
 });
 
 module.exports.authenticated = regd_users;
