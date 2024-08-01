@@ -9,9 +9,9 @@ public_users.post("/register", (req, res) => {
     const { username, password } = req.body
     if (!username || !password) return res.status(400).json({ message: "Please, fields are required" })
 
-    if(isValid(username)) return res.status(400).json({ message: `Sorry, this ${username} is already is use`})
+    if (isValid(username)) return res.status(400).json({ message: `Sorry, this ${username} is already is use` })
 
-    users.push({ "username": username , "password": password })
+    users.push({ "username": username, "password": password })
 
     return res.status(300).json({ message: `User ${username} register successfully` });
 });
@@ -19,7 +19,13 @@ public_users.post("/register", (req, res) => {
 // Get the book list available in the shop
 public_users.get('/', function (_req, res) {
     //Write your code here
-    return res.status(200).send(JSON.stringify(books, null, 4));
+    let bookLists = new Promise((resolve, rejected) => {
+        setTimeout(() => {
+            resolve(books)
+        }, 1000)
+    })
+
+    bookLists.then((books) => res.status(200).send(JSON.stringify(books, null, 4))).catch((e) => res.status(400).send(e))
 });
 
 // Get book details based on ISBN
@@ -29,9 +35,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
 
     if (!isbn) return res.status(400).json({ message: "Please, provide a valid isbn" })
 
-    const findBook = getBookByISBN(isbn)
-
-    return res.status(300).json(findBook);
+    getBookByISBN(isbn).then((book) => res.status(200).send(book)).catch((e) => res.status(400).send(e))
 });
 
 // Get book details based on author
@@ -41,9 +45,7 @@ public_users.get('/author/:author', function (req, res) {
 
     if (!author) return res.status(400).json({ message: "Please, provide a valid author" })
 
-    const findAuthor = filterBookByProperty("author", author).book
-
-    return res.status(300).json(findAuthor);
+    filterBookByProperty("author", author).then((author) => res.status(200).send(author.book)).catch((e) => res.status(400).send(e))
 });
 
 // Get all books based on title
@@ -53,9 +55,7 @@ public_users.get('/title/:title', function (req, res) {
 
     if (!title) return res.status(400).json({ message: "Please, provide a valid title" })
 
-    const findTitle = filterBookByProperty("title", title).book
-
-    return res.status(300).json(findTitle);
+    filterBookByProperty("title", title).then((data) => res.status(200).send(data.book)).catch((e) => res.status(400).send(e))
 });
 
 //  Get book review
@@ -65,9 +65,7 @@ public_users.get('/review/:isbn', function (req, res) {
 
     if (!isbn) return res.status(400).json({ message: "Please, provide a valid isbn" })
 
-    const findBook = getBookByISBN(isbn)
-
-    return res.status(200).json(findBook.reviews);
+    getBookByISBN(isbn).then((book) => res.status(200).send(book.reviews)).catch((e) => res.status(400).send(e))
 });
 
 module.exports.general = public_users;
