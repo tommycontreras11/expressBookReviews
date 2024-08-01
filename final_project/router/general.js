@@ -1,32 +1,15 @@
 const express = require('express');
-let books = require("./booksdb.js");
+const { books, filterBookByProperty, getBookByISBN } = require("./booksdb.js")
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-
-const getBookByISBN = (isbn) => {
-    const book = books[isbn]
-    if (!book) return { message: "Please, provide a valid isbn" }
-
-    return book
-}
-
-const filterBookByProperty = (property, value) => {
-    const keys = Object.keys(books)
-
-    let key = keys.find(x => books[x][property] == value)
-
-    if (!books[key]) return { message: `Please, provide a valid ${property}` }
-
-    return books[key]
-}
 
 public_users.post("/register", (req, res) => {
     //Write your code here
     const { username, password } = req.body
     if (!username || !password) return res.status(400).json({ message: "Please, fields are required" })
-    
-    if(!isValid(username)) return res.status(400).json({ message: `Sorry, this ${username} is already is use`})
+
+    if(isValid(username)) return res.status(400).json({ message: `Sorry, this ${username} is already is use`})
 
     users.push({ "username": username , "password": password })
 
@@ -34,7 +17,7 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
+public_users.get('/', function (_req, res) {
     //Write your code here
     return res.status(200).send(JSON.stringify(books, null, 4));
 });
@@ -58,7 +41,7 @@ public_users.get('/author/:author', function (req, res) {
 
     if (!author) return res.status(400).json({ message: "Please, provide a valid author" })
 
-    const findAuthor = filterBookByProperty("author", author)
+    const findAuthor = filterBookByProperty("author", author).book
 
     return res.status(300).json(findAuthor);
 });
@@ -70,7 +53,7 @@ public_users.get('/title/:title', function (req, res) {
 
     if (!title) return res.status(400).json({ message: "Please, provide a valid title" })
 
-    const findTitle = filterBookByProperty("title", title)
+    const findTitle = filterBookByProperty("title", title).book
 
     return res.status(300).json(findTitle);
 });
@@ -88,3 +71,4 @@ public_users.get('/review/:isbn', function (req, res) {
 });
 
 module.exports.general = public_users;
+module.exports.getBookByISBN = getBookByISBN;
