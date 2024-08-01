@@ -62,6 +62,8 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
 
     const userLogged = req.session.authorization['username']
 
+    if(!books[isbn]) return res.status(404).json({ message: "Please, provide a valid isbn" })
+
     if(!books[isbn].reviews[userLogged]) return res.status(400).json({ message: "Sorry, you haven't written a review yet" });
 
     delete books[isbn].reviews[userLogged]
